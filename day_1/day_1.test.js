@@ -15,7 +15,7 @@ test(`day ${day} basic part 2`, () => {
 // Update below fields to reflect test data
 const part1Result = 142
 
-const part2Result = None
+const part2Result = undefined
 
 const test_data = `1abc2
 pqr3stu8vwx
