@@ -8,10 +8,6 @@ test(`day ${day} basic part 1`, () => {
     expect(part1(testData)).toBe(part1Result)
 });
 
-test(`day ${day} basic part 1.1`, () => {
-    expect(part1(testDataa)).toBe(123)
-});
-
 test(`day ${day} basic part 2`, () => {
     expect(part2(testData2)).toBe(part2Result)
 });
@@ -20,7 +16,7 @@ test(`day ${day} basic part 2`, () => {
 // Update below fields to reflect test data
 const part1Result = 4361
 
-const part2Result = undefined
+const part2Result = 467835
 
 const testData = `467..114..
 ...*......
@@ -33,8 +29,13 @@ const testData = `467..114..
 ...$.*....
 .664.598..`
 
-const testDataa = `...
-..!
-123`
-
-const testData2 = undefined
+const testData2 = `467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..`

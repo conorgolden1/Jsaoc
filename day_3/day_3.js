@@ -14,7 +14,7 @@ function part1(data) {
         }
         for (number of numbers[i]) {
             const adjCoord = getAdjCoord(number.startIndex, number.endIndex, Number(i), rowLength, columnLength)
-            numberCoords.push({'value': number.value,  'adjCoord': adjCoord })
+            numberCoords.push({ 'value': number.value, 'adjCoord': adjCoord })
         }
     }
     return numberCoords.reduce((acc, n) => {
@@ -110,8 +110,58 @@ function isSymbol(chr) {
     return (isNaN(chr) && chr !== '.')
 }
 
-function part2(data) {
+function findStars(coordsToCheck, data) {
+    const starCoords = []
+    for (coord of coordsToCheck) {
+        const x = coord[0]
+        const y = coord[1]
+        if (data[y][x] === '*') {
+            starCoords.push([x, y])
+        }
+    }
+    return starCoords
+}
 
+function starMatches(toMatch, numberStars) {
+    const matches = []
+    for (matchCoord of toMatch) {
+        for (pair of numberStars) {
+            for (pairCoord of pair.starCoord) {
+                if (matchCoord[0] == pairCoord[0] && matchCoord[1] == pairCoord[1]) {
+                    matches.push(pair.value)
+                }
+            }
+        }
+    }
+
+    return matches
+}
+
+function part2(data) {
+    const lines = data.split("\n")
+    const rowLength = lines[0].length
+    const columnLength = lines.length - 1
+    const numbers = lines.map((line) => { return getNumbers(line) })
+    const numberCoords = []
+    for (i in numbers) {
+        if (numbers[i].toString() === [].toString()) {
+            continue
+        }
+        for (number of numbers[i]) {
+            const adjCoord = getAdjCoord(number.startIndex, number.endIndex, Number(i), rowLength, columnLength)
+            numberCoords.push({ 'value': number.value, 'adjCoord': adjCoord })
+        }
+    }
+    const numberStars = []
+    for (pair of numberCoords) {
+        const stars = findStars(pair.adjCoord, lines)
+        if (stars.toString() !== [].toString()) {
+            numberStars.push({ 'value': pair.value, 'starCoord': stars })
+        }
+    }
+    const starMatch = numberStars.map((pair) => { return starMatches(pair.starCoord, numberStars) })
+    const gearRatios = starMatch.filter((arr) => { return (arr.length > 1 && arr.length < 3) }).map((arr) => { return arr.reduce((acc, n) => {return acc * n}, 1) })
+    return [...new Set(gearRatios)].reduce((acc, n) => { return acc + n }, 0)
 }
 
 module.exports = {
