@@ -1,11 +1,42 @@
 const { error } = require('console');
-const filePath = 'day_1/data.txt';
 
 function part1(data) {
     const lines = data.split("\n")
     return lines.map((line) => {
         return getFirstAndLastDigit(line)
     }).reduce((acc, n) => { return acc + n }, 0);
+}
+
+function part2(data) {
+    const lines = data.split("\n")
+    return lines.map((line) => {
+        return getFirstAndLastDigit(replaceIntegers(line))
+    }).reduce((acc, n) => { return acc + n }, 0);
+}
+
+function replaceIntegers(line) {
+    let buildString = ""
+    const sNums = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+    for (i in line) {
+        if (!isNaN(line[i])) {
+            buildString += line[i]
+            continue
+        }
+        for (n in sNums) {
+            const length = sNums[n].length
+            if (length > (line.length - i)) {
+                continue
+            }
+            const substr = line.substr(i, length)
+            if (substr === sNums[n]) {
+                buildString += (Number(n) + 1)
+                continue
+            }
+        }
+
+    }
+    console.log(line, buildString)
+    return buildString
 }
 
 function getFirstAndLastDigit(line) {
@@ -30,27 +61,6 @@ function getFirstAndLastDigit(line) {
     }
     return parseInt(`${firstDigit}${secondDigit}`);
 }
-
-function part2(data) {
-
-}
-
-function main() {
-    const fs = require('fs');
-
-    fs.readFile(filePath, 'utf-8', (error, fileContent) => {
-        if (error) {
-            console.error('Error reading the file:', error.message);
-            return;
-        }
-        //Uncomment when finished function
-        console.log(fileContent)
-        console.log(part1(fileContent))
-        //console.log(part2(data))
-    });
-}
-
-main()
 
 module.exports = {
     part1,
