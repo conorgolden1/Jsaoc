@@ -6,7 +6,7 @@ const { part1, part2 } = require(`./day_${day}.js`)
 test(`day ${day} basic part 1`, () => {
     expect(part1(test_data)).toBe(part1Result)
 });
-test(`day ${day} basic part 1`, () => {
+test(`day ${day} basic part 2`, () => {
     expect(part2(test_data)).toBe(part2Result)
 });
 
