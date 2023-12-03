@@ -35,7 +35,6 @@ function replaceIntegers(line) {
         }
 
     }
-    console.log(line, buildString)
     return buildString
 }
 
@@ -43,16 +42,25 @@ function getFirstAndLastDigit(line) {
     let firstDigit = null
     let secondDigit = null
 
-    for (const char of line) {
-        if (!isNaN(char)) {
-            if (firstDigit === null) {
-                firstDigit = char
-            } else {
-                secondDigit = char
-            }
+    let firstIndex = 0
+
+    while (firstIndex < line.length) {
+        if (!isNaN(line[firstIndex])) {
+            firstDigit = line[firstIndex]
+            break
         }
+        firstIndex++
     }
 
+    let secondIndex = line.length
+
+    while (secondIndex > -1) {
+        if (!isNaN(line[secondIndex])) {
+            secondDigit = line[secondIndex]
+            break
+        }
+        secondIndex--
+    }
     if (firstDigit === null) {
         return 0
     }
