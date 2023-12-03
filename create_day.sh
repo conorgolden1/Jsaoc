@@ -30,7 +30,8 @@ find "$template_folder" -type f | while read -r file; do
         new_file=$(echo $file | sed "s#template/template\\.#$dest_folder.#")
         cp "$file" "$dest_folder/$new_file"
         if [[ "$file" =~ ^"template/template.test" ]]; then
-            echo "const day = $user_input" | cat - "$dest_folder/$newfile" > temp && mv temp "$dest_folder/$newfile"
+            echo "const day = $user_input" | cat - "$dest_folder/$new_file" > temp && mv temp "$dest_folder/$new_file"
+        fi
     else
         new_file=$(echo $file | sed "s#template/##")
         cp "$file" "$dest_folder/$newfile"
