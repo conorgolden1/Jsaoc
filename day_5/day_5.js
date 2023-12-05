@@ -1,7 +1,7 @@
 const { error } = require('console');
 
-function part1(info) {
-    const lines = info.split("\n\n")
+function part1(data) {
+    const lines = data.split("\n\n")
     const mappings = []
     const seeds = lines.shift().split(':')[1].replaceAll('\n', ' ').slice(1).split(' ').map((s) => { return parseInt(s) })
     for (let i = 0; i < 7; i++) {
@@ -102,8 +102,8 @@ function processRangeSeeds(seeds, ranges, seedMaps) {
     return [newSeeds, newRanges]
 }
 
-function part2(info) {
-    const lines = info.split("\n\n")
+function part2(data) {
+    const lines = data.split("\n\n")
     const mappings = []
     const seeds = lines.shift().split(':')[1].replaceAll('\n', ' ').slice(1).split(' ').map((s) => { return parseInt(s) })
     for (let i = 0; i < 7; i++) {
