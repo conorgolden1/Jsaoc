@@ -16,7 +16,7 @@ test(`day ${day} basic part 2`, () => {
 // Update below fields to reflect test data
 const part1Result = 35
 
-const part2Result = undefined
+const part2Result = 46
 
 const testData = `seeds: 79 14 55 13
 
@@ -52,4 +52,4 @@ humidity-to-location map:
 60 56 37
 56 93 4`
 
-const testData2 = undefined
+const testData2 = testData

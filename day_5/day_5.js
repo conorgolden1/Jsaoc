@@ -2,91 +2,127 @@ const { error } = require('console');
 
 function part1(info) {
     const lines = info.split("\n\n")
-    const data = parseData(lines)
-    data.seeds = transformSeeds(data.seeds, data.seedToSoil)
-    data.seeds = transformSeeds(data.seeds, data.soilToFertilizer)
-    data.seeds = transformSeeds(data.seeds, data.fertilizerToWater)
-    data.seeds = transformSeeds(data.seeds, data.waterToLight)
-    data.seeds = transformSeeds(data.seeds, data.lightToTemperature)
-    data.seeds = transformSeeds(data.seeds, data.temperatureToHumidity)
-    data.seeds = transformSeeds(data.seeds, data.humidityToLocation)
+    const mappings = []
+    const seeds = lines.shift().split(':')[1].replaceAll('\n', ' ').slice(1).split(' ').map((s) => { return parseInt(s) })
+    for (let i = 0; i < 7; i++) {
+        mappings.push(constructMap(lines.shift().split(':')[1].replaceAll('\n', ' ').slice(1).split(' ')))
+    }
     let lowest = Infinity
-    for (seed of data.seeds) {
+    for (let seed of seeds) {
+        for (seedMap of mappings) {
+            seed = transformSeed(seed, seedMap)
+        }
         if (seed < lowest) {
             lowest = seed
         }
     }
     return lowest
-
-
 }
 
-function transformSeeds(seeds, mapping) {
-    const copy = []
-    for (const seed of seeds) {
-        let changed = false
-        for (let y = 0; y < mapping.length; y += 2) {
-            const n = parseInt(y)
-            const lower = parseInt(mapping[n + 1][0])
-            const bottom = parseInt(mapping[n][0])
-            const upper = parseInt(mapping[n + 1][1])
-
-            if (seed >= lower && seed < upper) {
-                copy.push(seed - lower + bottom)
-                changed = true
-                break
-            }
-        }
-        if (!changed) {
-            copy.push(seed)
+function transformSeed(seed, mapping) {
+    for (seedMap of mapping) {
+        const lower = parseInt(seedMap[0])
+        const range = parseInt(seedMap[1])
+        const destination = parseInt(seedMap[2])
+        if (seed >= lower && seed < lower + range) {
+            return (seed - lower + destination)
         }
     }
-    return copy
+    return seed
 
-}
-
-function parseData(lines) {
-    let data = []
-    data.humidityToLocation = constructMap(lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' '))
-    data.temperatureToHumidity = constructMap(lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' '))
-    data.lightToTemperature = constructMap(lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' '))
-    data.waterToLight = constructMap(lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' '))
-    data.fertilizerToWater = constructMap(lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' '))
-    data.soilToFertilizer = constructMap(lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' '))
-    data.seedToSoil = constructMap(lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' '))
-    data.seeds = lines.pop().split(':')[1].replaceAll('\n', ' ').slice(1).split(' ')
-    return data
 }
 
 function constructMap(arr) {
     const rangePairs = []
     for (let i = 0; i < arr.length; i += 3) {
         const n = parseInt(i)
-        const source = parseInt(arr[n])
-        const dest = parseInt(arr[n + 1])
-        const rng = parseInt(arr[n + 2])
-        rangePairs.push([source, source + rng])
-        rangePairs.push([dest, dest + rng])
+        const destination = parseInt(arr[n])
+        const source = parseInt(arr[n + 1])
+        const range = parseInt(arr[n + 2])
+        rangePairs.push([source, range, destination])
     }
     return rangePairs
 }
 
 
-function part2(data) {
+
+function processRangeSeeds(seeds, ranges, seedMaps) {
+    let newSeeds = []
+    let newRanges = []
+    const fragments = seeds
+    const rangeFragments = ranges
+    while (fragments.length !== 0) {
+        const seedBottom = fragments.pop()
+        const seedRange = rangeFragments.pop()
+        const seedTop = seedBottom + seedRange
+        const oldSeedsLength = newSeeds.length
+        for (let m = 0; m < seedMaps.length && oldSeedsLength === newSeeds.length; m++) {
+            const mapBottom = seedMaps[m][0]
+            const mapRange = seedMaps[m][1]
+            const mapTop = mapBottom + mapRange
+            const dest = seedMaps[m][2]
+            //Just transform what is only in the range
+            //Iterate over fragments until no changes
+            if (seedBottom < mapBottom && seedTop > mapTop) {
+                fragments.push(seedBottom)
+                rangeFragments.push(mapBottom - seedBottom)
+
+                newSeeds.push(dest)
+                newRanges.push(mapTop - mapBottom)
+
+                fragments.push(mapTop)
+                rangeFragments.push(seedTop - mapTop)
+                //split into 3rds
+            } else if (seedBottom < mapBottom && seedTop > mapBottom) {
+                fragments.push(seedBottom)
+                rangeFragments.push(mapBottom - seedBottom)
+
+                newSeeds.push(dest)
+                newRanges.push(seedTop - mapBottom)
+                //split into mapBottom half
+            } else if (seedBottom >= mapBottom && seedBottom < mapTop && seedTop > mapTop) {
+                newSeeds.push(seedBottom - mapBottom + dest)
+                newRanges.push(mapTop - seedBottom - 1)
+
+                fragments.push(mapTop)
+                rangeFragments.push(seedTop - mapTop)
+                //split into mapTop half
+            } else if (seedBottom >= mapBottom && seedTop <= mapTop) {
+                newSeeds.push(seedBottom - mapBottom + dest)
+                newRanges.push(seedRange)
+                //No split. just transform
+            }
+        }
+        if (newSeeds.length === oldSeedsLength) {
+            newSeeds.push(seedBottom)
+            newRanges.push(seedRange)
+        }
+    }
+
+    return [newSeeds, newRanges]
+}
+
+function part2(info) {
     const lines = info.split("\n\n")
-    const data = parseData(lines)
-    data.seeds = transformSeeds(data.seeds, data.seedToSoil)
-    data.seeds = transformSeeds(data.seeds, data.soilToFertilizer)
-    data.seeds = transformSeeds(data.seeds, data.fertilizerToWater)
-    data.seeds = transformSeeds(data.seeds, data.waterToLight)
-    data.seeds = transformSeeds(data.seeds, data.lightToTemperature)
-    data.seeds = transformSeeds(data.seeds, data.temperatureToHumidity)
-    data.seeds = transformSeeds(data.seeds, data.humidityToLocation)
-    console.log(data.seeds)
+    const mappings = []
+    const seeds = lines.shift().split(':')[1].replaceAll('\n', ' ').slice(1).split(' ').map((s) => { return parseInt(s) })
+    for (let i = 0; i < 7; i++) {
+        mappings.push(constructMap(lines.shift().split(':')[1].replaceAll('\n', ' ').slice(1).split(' ')))
+    }
+
     let lowest = Infinity
-    for (seed of data.seeds) {
-        if (seed < lowest) {
-            lowest = seed
+    for (let i = 0; i < seeds.length; i += 2) {
+        const n = parseInt(i)
+        let testSeeds = [seeds[n]]
+        let ranges = [seeds[n + 1]]
+        for (mapp of mappings) {
+            [testSeeds, ranges] = processRangeSeeds(testSeeds, ranges, mapp)
+        }
+
+        for (const seed of testSeeds) {
+            if (seed < lowest) {
+                lowest = seed
+            }
         }
     }
     return lowest
