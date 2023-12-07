@@ -14,10 +14,14 @@ test(`day ${day} basic part 2`, () => {
 
 
 // Update below fields to reflect test data
-const part1Result = undefined
+const part1Result = 6440
 
 const part2Result = undefined
 
-const testData = undefined
+const testData = `32T3K 765
+T55J5 684
+KK677 28
+KTJJT 220
+QQQJA 483`
 
 const testData2 = undefined
