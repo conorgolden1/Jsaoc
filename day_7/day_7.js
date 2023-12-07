@@ -5,89 +5,93 @@ function part1(data) {
 
     const dataPairs = lines.map((line) => {
         const arr = line.split(" ")
-        return [findMatches(arr[0]), arr[1]]
+        return [arr[0].split(''), arr[1]]
     })
+    dataPairs.pop()
     dataPairs.sort(function(a, b) {
-        const c = compareHands(a[0], b[0])
-        if (c) {
-            return 1
-        }
-        return -1
+        return  compareHands(a[0], b[0])
     })
 
-    console.log(dataPairs)
+    //console.log(dataPairs)
     let rank = 0
     return dataPairs.reduce((acc, n) => { rank++; return acc + (n[1] * rank) }, 0)
+}
+// Find how many cards have matches
+// Compare
+// If same compare each card in hand
+function cmpCards(a, b) {
+    const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
+    if (a === b) {
+        return 0
+    }
+    if (cards.indexOf(a) < cards.indexOf(b)) {
+        return -1
+    }
+    return 1
+}
+
+function compareHands(hand1, hand2) {
+    if (compareHandsInner(hand1, hand2)) {
+        //console.log(`Result: ${hand1} > ${hand2}`)
+        return 1
+    }
+    //console.log(`Result: ${hand2} > ${hand1}`)
+    return -1
 }
 
 //hand = [highest, highest#, sec, sec#]
 //true if hand1 > hand2
 //false if hand2 > hand1
-function compareHands(hand1, hand2) {
-    const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
-    if (hand1[1] > hand2[1]) {
-        return true
-    }
-    if (hand2[1] > hand1[1]) {
-        return false
-    }
-
-    if ((hand1[1] === 2 && hand1[3] === 2) || (hand2[1] === 2 && hand2[3] === 2)) {
-        return compareTwoPair(hand1, hand2)
+function compareHandsInner(hand1, hand2) {
+    const hand1Unique = countUnique(hand1)
+    const hand2Unique = countUnique(hand2)
+    const hand1Values = findMaxAndSecMax(Object.values(hand1Unique))
+    const hand2Values = findMaxAndSecMax(Object.values(hand2Unique))
+    //console.log(`Comparing: ${hand1}, ${hand2}\nUnique: ${hand1Unique}, ${hand2Unique}\nValues: ${hand1Values}, ${hand2Values}`)
+    if (hand1Values[0] !== hand2Values[0]) {
+        return hand1Values[0] > hand2Values[0]
     }
 
-    if ((hand1[1] === 3 && hand1[3] === 2) || (hand2[1] === 3 && hand2[3] === 2)) {
-        return compareFullHouse(hand1, hand2)
+    if (hand1Values[1] !== hand2Values[1]) {
+        return hand1Values[1] > hand2Values[1]
     }
 
-    if (hand1[1] === hand2[1] && hand1[0] === hand2[0]) {
-        return cards.indexOf(hand1[3]) < cards.indexOf(hand2[3])
+    for (i in hand1) {
+        const cmp = cmpCards(hand1[i], hand2[i])
+        if (cmp === 0) {
+            continue
+        }
+        //console.log(`Card cmp: ${hand1[i]}, ${hand2[i]} | Index: ${i}, Result: ${cmp}`)
+        return cmp < 0
     }
-    return cards.indexOf(hand1[0]) < cards.indexOf(hand2[0])
+    throw Error("Unreachable")
 }
 
-function compareTwoPair(hand1, hand2) {
-    const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
-
-    if (hand1[3] !== 2) {
-        return false
+function countUnique(arr) {
+    const counts = {}
+    for (i in arr) {
+        counts[arr[i]] = 1 + (counts[arr[i]] || 0);
     }
-
-    if (hand2[3] !== 2) {
-        return true
-    }
-
-    if (cards.indexOf(hand1[0]) !== cards.indexOf(hand2[0])) {
-        return cards.indexOf(hand1[0]) < cards.indexOf(hand2[0])
-
-    }
-
-    if (cards.indexOf(hand1[2]) !== cards.indexOf(hand2[2])) {
-        return cards.indexOf(hand1[2]) < cards.indexOf(hand2[2])
-    }
-
-    return cards.indexOf(hand1[4]) < cards.indexOf(hand2[4])
-
+    return counts;
 }
 
-//hand = [highest, highest#, sec, sec#]
-function compareFullHouse(hand1, hand2) {
-    const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
-    //hand1 not full house
-    if (hand1[3] !== 2) {
-        return false
+function findMaxAndSecMax(arr) {
+    let max = arr[0];
+    let sec = -Infinity
+    for (let i = 1; i < arr.length; i++) {
+        const v = arr[i]
+        if (v > max) {
+            sec = max
+            max = v
+            continue
+        }
+        if (v > sec) {
+            sec = v
+        }
     }
-    //hand2 not full house
-    if (hand2[3] !== 2) {
-        return true
-    }
-
-    if (hand1[0] !== hand2[0]) {
-        return cards.indexOf(hand1[2]) < cards.indexOf(hand2[2])
-    }
-
-    return cards.indexOf(hand1[0]) < cards.indexOf(hand2[0])
+    return [max, sec]
 }
+
 
 function findMatches(hand) {
     const matches = {}
@@ -99,62 +103,9 @@ function findMatches(hand) {
         }
 
     }
-    return highestHand(matches)
 }
 
-function highestHand(matches) {
-    let highestCard = null
-    let highestNumber = null
-    let secondHighest = null
-    let secondHighestNumber = null
-    let third = null
-    for (const card of Object.keys(matches)) {
-        const numOfCard = matches[card]
-        if (highestCard == null) {
-            highestCard = card
-            highestNumber = numOfCard
-            continue
-        }
-        if (!compareCards(highestCard, highestNumber, card, numOfCard)) {
-            third = secondHighest
-            secondHighestNumber = highestNumber
-            secondHighest = highestCard
-            highestCard = card
-            highestNumber = numOfCard
-            continue
-        }
-        if (secondHighest == null) {
-            secondHighest = card
-            secondHighestNumber = numOfCard
-            continue
-        }
 
-        if (!compareCards(secondHighest, secondHighestNumber, card, numOfCard)) {
-            third = secondHighest
-            secondHighestNumber = numOfCard
-            secondHighest = card
-        }
-
-        if (third === null) {
-            third = card
-        }
-
-    }
-    return [highestCard, highestNumber, secondHighest, secondHighestNumber, third]
-}
-// True if card1 better
-// False if card2 better
-function compareCards(card1, numCard1, card2, numCard2) {
-    const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
-    if (numCard1 > numCard2) {
-        return true
-    }
-    if (numCard2 > numCard1) {
-        return false
-    }
-    return cards.indexOf(card1) < cards.indexOf(card2)
-
-}
 
 function part2(data) {
 
