@@ -1,6 +1,6 @@
 const day = 7
 const filePath = 'day_7/data.txt'
-const { part1, part2 } = require(`./day_${day}.js`)
+const { part2 } = require(`./day_${day}.js`)
 
 function main() {
     const fs = require('fs');
@@ -11,8 +11,7 @@ function main() {
             return;
         }
         //Uncomment when finished function
-        console.log(part1(fileContent))
-        //console.log(part2(fileContent))
+        console.log(part2(fileContent))
     });
 }
 
