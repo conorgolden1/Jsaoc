@@ -12,7 +12,7 @@ function main() {
         }
         //Uncomment when finished function
         console.log(part1(fileContent))
-        //console.log(part2(fileContent))
+        console.log(part2(fileContent))
     });
 }
 
